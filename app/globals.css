@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-HTML {
+html {
   scroll-behavior: smooth;
 }
 
@@ -189,4 +189,40 @@ HTML {
   .heading {
     @apply font-bold text-4xl md:text-5xl text-center;
   }
+}
+
+.grid-base, .grid-glare { position: absolute; inset: 0; background-size: 64px 64px; animation: grid-drift 30s linear infinite; }
+.grid-base {
+  background-image: linear-gradient(to right, rgba(148,163,255,.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,255,.08) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
+}
+.grid-glare {
+  background-image: linear-gradient(to right, rgba(196,181,253,.75) 1px, transparent 1px), linear-gradient(to bottom, rgba(196,181,253,.75) 1px, transparent 1px);
+  mask-image: radial-gradient(240px circle at var(--mx, 50%) var(--my, 35%), black, transparent 70%);
+}
+@keyframes grid-drift { to { background-position: 64px 64px; } }
+.aurora { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .45; }
+.aurora-a { width: 42rem; height: 42rem; left: -10%; top: -20%; background: #4f46e5; animation: aurora-a 18s ease-in-out infinite alternate; }
+.aurora-b { width: 36rem; height: 36rem; right: -10%; top: 5%; background: #9333ea; animation: aurora-b 22s ease-in-out infinite alternate; }
+.aurora-c { width: 30rem; height: 30rem; left: 30%; bottom: -25%; background: #0ea5e9; animation: aurora-c 26s ease-in-out infinite alternate; }
+@keyframes aurora-a { to { transform: translate(18%, 12%) scale(1.15); } }
+@keyframes aurora-b { to { transform: translate(-16%, 18%) scale(1.2); } }
+@keyframes aurora-c { to { transform: translate(14%, -12%) scale(1.1); } }
+.star { position: absolute; border-radius: 9999px; background: #fff; animation: twinkle 4s ease-in-out infinite; }
+@keyframes twinkle { 0%, 100% { opacity: .15; } 50% { opacity: .9; } }
+.sweep { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.07) 50%, transparent 58%); transform: translateX(-100%); animation: sweep 9s ease-in-out infinite; }
+@keyframes sweep { 0%, 55% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .grid-base, .grid-glare, .aurora, .star, .sweep { animation: none; }
+}
+
+.text-shimmer {
+  background-size: 200% auto;
+  animation: shimmer 6s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-shimmer { animation: none; }
 }

@@ -1,60 +1,92 @@
-import { Spotlight } from './ui/spotlight'
-import { cn } from "@/lib/utils";
-import { TextGenerateEffect } from './ui/text-generate-effect';
-import MagicButton from './ui/magic-button';
-import { FaLocationArrow } from 'react-icons/fa6';
+"use client";
+import { useRef } from "react";
+import { FaGithub, FaLocationArrow } from "react-icons/fa6";
+import { Spotlight } from "./ui/spotlight";
+import { TextGenerateEffect } from "./ui/text-generate-effect";
+import MagicButton from "./ui/magic-button";
+import { contact } from "@/data";
 
-const words = "Transforming Concepts into Seamless User Experiences"
+const words = "Transforming Concepts into Seamless User Experiences";
 
-const hero = () => {
+// Deterministic positions (no Math.random during render)
+const stars = Array.from({ length: 42 }, (_, i) => ({
+  left: (i * 37 + 11) % 100,
+  top: (i * 53 + 7) % 100,
+  delay: (i % 7) * 0.8,
+  size: i % 5 === 0 ? 2 : 1,
+}));
+
+const Hero = () => {
+  const ref = useRef<HTMLElement>(null);
+
+  // Feeds the cursor position to the "glare" layer of the grid
+  const onMove = (e: React.PointerEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
+
   return (
-    <div className='pb-16 pt-18 relative h-screen'>
-      <div className=''>
-        <Spotlight className='-top-40 -left-10 md:-top-32 md:-left-20 h-screen' fill='white'/>
-        <Spotlight className='top-10 left-[70%] h-[80vh] w-[50vw]' fill='purple'/>
-        <Spotlight className='top-28 left-80 h-[80vh] w-[50vw]' fill='blue'/>
+    <section
+      id="home"
+      ref={ref}
+      onPointerMove={onMove}
+      className="relative flex min-h-svh w-full items-center justify-center overflow-hidden bg-[#000319] px-4 pb-20 pt-28"
+    >
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="aurora aurora-a" />
+        <div className="aurora aurora-b" />
+        <div className="aurora aurora-c" />
+        <div className="grid-base" />
+        <div className="grid-glare" />
+        {stars.map((s, i) => (
+          <span
+            key={i}
+            className="star"
+            style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size, animationDelay: `${s.delay}s` }}
+          />
+        ))}
+        <div className="sweep" />
+        <Spotlight className="-top-40 -left-10 h-screen md:-top-32 md:-left-20" fill="white" />
+        <Spotlight className="top-10 left-[70%] h-[80vh] w-[50vw]" fill="purple" />
+        <Spotlight className="top-28 left-80 h-[80vh] w-[50vw]" fill="blue" />
+        {/* edge fade so the grid melts into the page */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,#000319_88%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent to-[#000319]" />
       </div>
-       <div className="absolute top-0 left-0 flex h-screen w-full items-center justify-center bg-white dark:bg-[#000319] z-0">
-        <div
-          className={cn(
-            "absolute inset-0",
-            "bg-size-[80px_80px]",
-            "bg-[linear-gradient(to_right,#e4e4e780_1px,transparent_1px),linear-gradient(to_bottom,#e4e4e7_1px,transparent_1px)]",
-            "dark:bg-[linear-gradient(to_right,#26262680_1px,transparent_1px),linear-gradient(to_bottom,#262626_1px,transparent_1px)]",
-          )}
-        />
-        {/* Radial gradient for the container to give a faded look */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white mask-[radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-[#000319]"></div>
-        {/* <p className="relative z-20 bg-linear-to-b from-neutral-200 to-neutral-500 bg-clip-text py-8 text-4xl font-bold text-transparent sm:text-7xl">
-          Backgrounds
-        </p> */}
-      </div>
-      <div className="relative flex justify-center my-20 z-10 ">
-          <div className='max-w-[89vw] md:max-w-2xl lg:max-w-[60vw] flex flex-col items-center justify-center'>
-            <h2 className='uppercase tracking-widest text-xs text-center text-blue-100 max-w-80'>
-              Dynamic Web Magic with Next.js
-            </h2>
-            <TextGenerateEffect 
-              className='text-center text-[40px] md:text-4xl lg:text-5xl'
-              words = {words}
-              duration={2}
-            />
-            <p className='text-center md:tracking-wider mb-4 text-sm md:text-lg lg:text-2xl'>
-              Hi, I&apos;m  Sheemy, a passionate web developer specializing in Next.js.
-            </p>
-            <a href="#about" className='mt-4'>
-            <MagicButton
-              title = "Explore My Work"
-              icon = {<FaLocationArrow />}
-              position = "right"
-              otherClasses='gap-2'
-            />
-            </a>
-          </div>
-      </div>
-      </div>
-    
-  )
-}
 
-export default hero
+      <div className="relative z-10 flex max-w-[89vw] flex-col items-center text-center md:max-w-2xl lg:max-w-[60vw]">
+        <span className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs uppercase tracking-widest text-blue-100 backdrop-blur">
+          Front-end &amp; Full-stack · Aswan, Egypt
+        </span>
+        <TextGenerateEffect
+          className="mt-5 text-center text-[40px] text-white md:text-5xl lg:text-6xl"
+          words={words}
+          duration={1}
+        />
+        <p className="mb-8 max-w-2xl text-sm text-neutral-300 md:text-lg lg:text-xl">
+          Hi, I&apos;m Sheemy, a web developer specializing in Next.js. I build fast, polished sites and dashboards, from hotel platforms to AI tools.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <MagicButton title="Explore My Work" icon={<FaLocationArrow />} position="right" otherClasses="gap-2" handleClick={() => { window.location.hash = "projects"; }} />
+          <a
+            href={contact.github}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-12 items-center gap-2 rounded-md border border-white/15 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+          >
+            <FaGithub /> GitHub
+          </a>
+        </div>
+      </div>
+
+      <span aria-hidden className="absolute bottom-8 z-10 h-9 w-5 rounded-full border border-white/30">
+        <span className="mx-auto mt-2 block h-2 w-1 animate-bounce rounded-full bg-white/70" />
+      </span>
+    </section>
+  );
+};
+
+export default Hero;
