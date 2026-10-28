@@ -49,7 +49,7 @@ export const projects = [
     id: 4,
     title: "High Up: Social Media Platform",
     des: "A full-stack social media application with secure authentication, post creation, photo sharing, and a responsive interface, built with Next.js and a PostgreSQL database.",
-    img: "/high-up.png",
+    img: "/highup.png",
     iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/c.svg"],
     link: "https://high-up.vercel.app",
   },
@@ -58,7 +58,7 @@ export const projects = [
     title: "Chattrix: Real-Time Messenger",
     des: "A full-stack messaging application featuring authentication, conversations, real-time communication, typing indicators, and customizable themes, powered by the MERN stack and Socket.IO.",
     img: "/chattrix.png",
-    iconLists: ["/re.svg", "/tail.svg", "/node.svg", "/mongo.svg"],
+    iconLists: ["/re.svg", "/tail.svg"],
     link: "https://chattrix-seven.vercel.app",
   },
   {
@@ -74,7 +74,7 @@ export const projects = [
     title: "Book-Lock: Online Bookstore",
     des: "A full-stack bookstore project designed to provide an organized shopping experience, with a focus on product discovery, book listings, and scalable application architecture.",
     img: "/book-lock.png",
-    iconLists: ["/re.svg", "/tail.svg", "/node.svg", "/mongo.svg"],
+    iconLists: ["/re.svg", "/tail.svg"],
     link: "https://github.com/ElSheemy11",
   },
   {
