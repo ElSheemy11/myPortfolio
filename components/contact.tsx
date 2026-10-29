@@ -6,11 +6,19 @@ import { FaArrowUp, FaGithub } from "react-icons/fa6";
 import { IoCheckboxOutline, IoCopyOutline, IoMailOutline } from "react-icons/io5";
 import MagicButton from "./ui/magic-button";
 import SectionBackground from "./ui/section-background";
-import { contact } from "@/data";
+import { contact, socialMedia } from "@/data";
 
 /* ------------------------------------------------------------------ */
 /* Small helpers                                                       */
 /* ------------------------------------------------------------------ */
+
+const SOCIALS: Record<number, { label: string; color: string }> = {
+  1: { label: "GitHub", color: "#e5e7eb" },
+  2: { label: "LinkedIn", color: "#38bdf8" },
+  3: { label: "Facebook", color: "#3b82f6" },
+  4: { label: "Instagram", color: "#ec4899" },
+  5: { label: "WhatsApp", color: "#22c55e" },
+};
 
 /** Pulls its children slightly toward the cursor. */
 function Magnetic({ children, strength = 0.3 }: { children: React.ReactNode; strength?: number }) {
@@ -121,24 +129,39 @@ export default function Contact() {
 
       <div className="relative mx-auto max-w-3xl text-center">
         {/* slowly orbiting rings behind the content */}
-        {!reduce && (
-          <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-              className="relative size-[26rem] rounded-full border border-dashed border-purple-400/20 md:size-[40rem]"
-            >
-              <span className="absolute -top-1.5 left-1/2 size-3 -translate-x-1/2 rounded-full bg-purple-300 shadow-[0_0_18px_6px_rgba(167,139,250,0.8)]" />
-            </motion.div>
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-8 rounded-full border border-sky-400/15 md:inset-16"
-            >
-              <span className="absolute -bottom-1.5 left-1/2 size-2.5 -translate-x-1/2 rounded-full bg-sky-300 shadow-[0_0_16px_5px_rgba(56,189,248,0.7)]" />
-            </motion.div>
-          </div>
-        )}
+        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2">
+          {/* soft dark disc so the rings read against the glare */}
+          <div className="absolute -inset-[10%] rounded-full bg-[radial-gradient(circle,rgba(0,3,25,0.8)_0%,rgba(0,3,25,0.45)_55%,transparent_75%)]" />
+
+          {/* outer ring: fits inside the section, scales with the screen */}
+          <motion.div
+            animate={reduce ? undefined : { rotate: 360 }}
+            transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
+            className="relative size-[min(92vw,30rem)] rounded-full border border-dashed border-purple-300/50 shadow-[0_0_40px_rgba(167,139,250,0.35),inset_0_0_40px_rgba(167,139,250,0.2)]"
+          >
+            <span className="absolute -top-2 left-1/2 size-4 -translate-x-1/2 rounded-full bg-purple-200 shadow-[0_0_22px_8px_rgba(167,139,250,0.9)]" />
+            <span className="absolute -bottom-1.5 left-1/2 size-3 -translate-x-1/2 rounded-full bg-fuchsia-300 shadow-[0_0_18px_6px_rgba(232,121,249,0.85)]" />
+          </motion.div>
+
+          {/* middle ring with a comet arc */}
+          <motion.div
+            animate={reduce ? undefined : { rotate: -360 }}
+            transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-[11%] rounded-full border border-sky-300/20 border-t-2 border-t-sky-300 shadow-[0_0_30px_rgba(56,189,248,0.25)]"
+          >
+            <span className="absolute -bottom-1.5 left-1/2 size-3 -translate-x-1/2 rounded-full bg-sky-200 shadow-[0_0_18px_6px_rgba(56,189,248,0.9)]" />
+          </motion.div>
+
+          {/* inner dotted ring */}
+          <motion.div
+            animate={reduce ? undefined : { rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-[24%] rounded-full border border-dotted border-pink-300/60"
+          >
+            <span className="absolute -right-1 top-1/2 size-2.5 -translate-y-1/2 rounded-full bg-pink-200 shadow-[0_0_16px_6px_rgba(244,114,182,0.85)]" />
+          </motion.div>
+        </div>
+
 
         {/* availability badge */}
         <motion.div {...fadeUp(0)} className="mb-6 flex justify-center">
@@ -224,6 +247,35 @@ export default function Contact() {
             </a>
           </Magnetic>
         </motion.div>
+        <motion.div {...fadeUp(0.9)} className="mt-10 flex flex-col items-center gap-4">
+          <span className="text-xs uppercase tracking-[0.3em] text-neutral-400">Or find me here</span>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            {socialMedia.map((s, i) => {
+              const meta = SOCIALS[s.id] ?? { label: "Link", color: "#a78bfa" };
+              return (
+                <motion.a
+                  key={s.id}
+                  href={s.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={meta.label}
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
+                  whileHover={{ y: -6, scale: 1.12 }}
+                  style={{ "--c": meta.color } as React.CSSProperties}
+                  className="group/s relative flex size-14 items-center justify-center rounded-2xl border border-white/15 bg-white/5 backdrop-blur transition-[border-color,box-shadow] duration-300 hover:border-[var(--c)] hover:shadow-[0_0_30px_var(--c)] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                >
+                  <img src={s.img} alt="" className="size-6 transition duration-300 group-hover/s:scale-110" />
+                  <span className="pointer-events-none absolute -bottom-8 rounded-md bg-black/70 px-2 py-0.5 text-[11px] text-white opacity-0 transition duration-200 group-hover/s:opacity-100">
+                    {meta.label}
+                  </span>
+                </motion.a>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
 
       {/* footer */}
@@ -234,15 +286,18 @@ export default function Contact() {
         <div aria-hidden className="absolute inset-x-0 -top-px mx-auto h-px w-1/2 bg-linear-to-r from-transparent via-purple-400/70 to-transparent" />
         <p>© {new Date().getFullYear()} Momen Sheemy</p>
         <div className="flex items-center gap-4">
-          <a
-            href={contact.github}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="GitHub"
-            className="text-lg transition hover:text-white"
-          >
-            <FaGithub />
-          </a>
+          {socialMedia.map((s) => (
+            <a
+              key={s.id}
+              href={s.link}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={SOCIALS[s.id]?.label ?? "Link"}
+              className="opacity-60 transition hover:-translate-y-0.5 hover:opacity-100"
+            >
+              <img src={s.img} alt="" className="size-5" />
+            </a>
+          ))}
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}

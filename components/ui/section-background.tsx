@@ -3,40 +3,45 @@ import { useEffect, useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 
 /**
- * Animated section background: aurora blobs (scroll parallax), a drifting grid
- * lit up by the cursor, twinkling stars, shooting stars, rising particles and a
- * light sweep. Reuses the .aurora / .grid-* / .star / .sweep classes in globals.css.
+ * INTENSE animated section background: 4 hue-shifting aurora blobs (scroll parallax),
+ * rotating light beams, pulsing rings, a bright drifting grid + big cursor spotlight,
+ * glowing twinkling stars, shooting comets, rising colored particles and a light sweep.
  *
- * Usage: the parent section MUST have `relative isolate overflow-hidden`
- * (isolate keeps the -z-10 layer above the page background).
+ * The parent section MUST have `relative isolate overflow-hidden`.
  */
 
-// Deterministic pseudo-random values, computed once at module level so server
-// and client render exactly the same markup (no hydration mismatch).
 function seeded(seed: number) {
   let s = seed;
   return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
 }
 const rnd = seeded(11);
-const STARS = Array.from({ length: 60 }, () => ({
+const GLOW = ["#c4b5fd", "#67e8f9", "#f9a8d4", "#ffffff"];
+const STARS = Array.from({ length: 150 }, (_, i) => ({
   x: +(rnd() * 100).toFixed(2),
   y: +(rnd() * 100).toFixed(2),
-  size: +(1 + rnd() * 2).toFixed(2),
+  size: +(1 + rnd() * 2.5).toFixed(2),
   delay: +(rnd() * 4).toFixed(2),
-  dur: +(3 + rnd() * 4).toFixed(2),
+  dur: +(2 + rnd() * 4).toFixed(2),
+  hot: i % 6 === 0,
+  color: GLOW[i % GLOW.length],
 }));
-const PARTICLES = Array.from({ length: 16 }, () => ({
+const PCOLORS = ["bg-purple-300", "bg-cyan-300", "bg-pink-300", "bg-indigo-300"];
+const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
   x: +(rnd() * 100).toFixed(2),
-  y: +(55 + rnd() * 45).toFixed(2),
-  size: +(2 + rnd() * 3).toFixed(2),
+  y: +(50 + rnd() * 50).toFixed(2),
+  size: +(2 + rnd() * 4).toFixed(2),
   delay: +(rnd() * 8).toFixed(2),
-  dur: +(7 + rnd() * 6).toFixed(2),
-  rise: Math.round(120 + rnd() * 140),
+  dur: +(5 + rnd() * 6).toFixed(2),
+  rise: Math.round(160 + rnd() * 260),
+  color: PCOLORS[i % PCOLORS.length],
 }));
 const SHOOTING = [
-  { left: "12%", top: "8%", delay: 1.5, repeatDelay: 9 },
-  { left: "58%", top: "4%", delay: 5.5, repeatDelay: 12 },
-  { left: "30%", top: "30%", delay: 9, repeatDelay: 15 },
+  { left: "8%", top: "6%", delay: 0.8, repeatDelay: 4 },
+  { left: "52%", top: "3%", delay: 2.5, repeatDelay: 5 },
+  { left: "28%", top: "28%", delay: 4.5, repeatDelay: 6 },
+  { left: "75%", top: "15%", delay: 6.5, repeatDelay: 5 },
+  { left: "40%", top: "50%", delay: 8.5, repeatDelay: 7 },
+  { left: "88%", top: "40%", delay: 10, repeatDelay: 6 },
 ];
 
 export default function SectionBackground({ variant = "experience" }: { variant?: "experience" | "contact" }) {
@@ -44,12 +49,11 @@ export default function SectionBackground({ variant = "experience" }: { variant?
   const reduce = useReducedMotion() ?? false;
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const yA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-10%", "25%"]);
-  const yB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["20%", "-20%"]);
-  const yC = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-15%", "15%"]);
-  const yStars = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["0%", "-10%"]);
+  const yA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-15%", "35%"]);
+  const yB = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["25%", "-30%"]);
+  const yC = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-20%", "25%"]);
+  const yStars = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["0%", "-14%"]);
 
-  // Feed the cursor position (relative to the parent section) to the grid glare layer.
   useEffect(() => {
     const el = ref.current;
     const parent = el?.parentElement;
@@ -64,37 +68,41 @@ export default function SectionBackground({ variant = "experience" }: { variant?
   }, []);
 
   return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      {/* aurora blobs, each drifting at its own scroll speed */}
-      <motion.div style={{ y: yA }} className="absolute inset-0">
-        <div className="aurora aurora-a" />
-      </motion.div>
-      <motion.div style={{ y: yB }} className="absolute inset-0">
-        <div className="aurora aurora-b" />
-      </motion.div>
-      <motion.div style={{ y: yC }} className="absolute inset-0">
-        <div className="aurora aurora-c" />
-      </motion.div>
+    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${variant === "contact" ? "contact-calm" : ""}`}>
+      {/* aurora blobs */}
+      <motion.div style={{ y: yA }} className="absolute inset-0"><div className="aurora aurora-a" /></motion.div>
+      <motion.div style={{ y: yB }} className="absolute inset-0"><div className="aurora aurora-b" /></motion.div>
+      <motion.div style={{ y: yC }} className="absolute inset-0"><div className="aurora aurora-c" /></motion.div>
+      <motion.div style={{ y: yB }} className="absolute inset-0"><div className="aurora aurora-d" /></motion.div>
+
+      {/* rotating light beams + pulsing rings */}
+      <div className="beams" />
+      <div className="ring" />
+      <div className="ring" style={{ animationDelay: "2s" }} />
+      <div className="ring" style={{ animationDelay: "4s" }} />
 
       {variant === "contact" && (
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_bottom,rgba(147,51,234,0.35),transparent_65%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-3/4 bg-[radial-gradient(ellipse_at_bottom,rgba(168,85,247,0.6),transparent_65%)]" />
       )}
 
-      {/* grid + cursor glare */}
+      {/* grid + cursor spotlight */}
       <div className="grid-base" />
+      <div className="cursor-glow" />
       <div className="grid-glare" />
 
-      {/* twinkling stars (parallax) */}
-      <motion.div style={{ y: yStars }} className="absolute -inset-y-[10%] inset-x-0">
+      {/* glowing twinkling stars */}
+      <motion.div style={{ y: yStars }} className="absolute -inset-y-[14%] inset-x-0">
         {STARS.map((s, i) => (
           <span
             key={i}
-            className="star"
+            className={s.hot ? "star star-hot" : "star"}
             style={{
               left: `${s.x}%`,
               top: `${s.y}%`,
-              width: s.size,
-              height: s.size,
+              width: s.hot ? s.size + 1.5 : s.size,
+              height: s.hot ? s.size + 1.5 : s.size,
+              background: s.color,
+              color: s.color,
               animationDelay: `${s.delay}s`,
               animationDuration: `${s.dur}s`,
             }}
@@ -104,15 +112,15 @@ export default function SectionBackground({ variant = "experience" }: { variant?
 
       {!reduce && (
         <>
-          {/* shooting stars */}
+          {/* comets */}
           {SHOOTING.map((s, i) => (
             <motion.span
               key={i}
-              className="absolute block h-px w-28 bg-linear-to-r from-transparent to-white"
+              className="absolute block h-[2px] w-44 rounded-full bg-linear-to-r from-transparent via-purple-300 to-white shadow-[0_0_14px_3px_rgba(196,181,253,0.9)]"
               style={{ left: s.left, top: s.top, rotate: 35 }}
               initial={{ x: 0, y: 0, opacity: 0 }}
-              animate={{ x: 430, y: 300, opacity: [0, 1, 0] }}
-              transition={{ duration: 1.4, delay: s.delay, repeat: Infinity, repeatDelay: s.repeatDelay, ease: "easeIn" }}
+              animate={{ x: 520, y: 365, opacity: [0, 1, 0] }}
+              transition={{ duration: 1.2, delay: s.delay, repeat: Infinity, repeatDelay: s.repeatDelay, ease: "easeIn" }}
             />
           ))}
 
@@ -120,10 +128,10 @@ export default function SectionBackground({ variant = "experience" }: { variant?
           {PARTICLES.map((p, i) => (
             <motion.span
               key={i}
-              className="absolute block rounded-full bg-purple-300/70 shadow-[0_0_10px_2px_rgba(196,181,253,0.6)]"
+              className={`absolute block rounded-full ${p.color} shadow-[0_0_14px_4px_rgba(196,181,253,0.8)]`}
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
-              initial={{ y: 0, opacity: 0 }}
-              animate={{ y: -p.rise, opacity: [0, 0.9, 0] }}
+              initial={{ y: 0, opacity: 0, scale: 0.6 }}
+              animate={{ y: -p.rise, opacity: [0, 1, 0], scale: [0.6, 1.4, 0.8] }}
               transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeOut" }}
             />
           ))}
@@ -132,10 +140,10 @@ export default function SectionBackground({ variant = "experience" }: { variant?
 
       <div className="sweep" />
 
-      {/* vignette + edge fades so the section melts into the page */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,#000319_100%)]" />
-      <div className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-[#000319] to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-[#000319] to-transparent" />
+      {/* lighter vignette + shorter edge fades so the effects stay visible */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000319_110%)]" />
+      <div className="absolute inset-x-0 top-0 h-16 bg-linear-to-b from-[#000319] to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-[#000319] to-transparent" />
     </div>
   );
 }

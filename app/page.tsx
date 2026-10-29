@@ -4,6 +4,7 @@ import Grid from "@/components/grid";
 import Hero from "@/components/hero";
 import RecentProjects from "@/components/recent-projects";
 import { FloatingNav } from "@/components/ui/floating-navbar";
+import SectionBackground from "@/components/ui/section-background";
 import { navItems } from "@/data";
 
 export default function Home() {
@@ -11,7 +12,8 @@ export default function Home() {
     <main className="relative flex w-full flex-col items-center overflow-x-clip bg-white dark:bg-[#000319]">
       <FloatingNav navItems={navItems} />
       <Hero />      
-      <div className="w-full max-w-7xl px-4 md:px-8">
+      <div className="relative isolate w-full overflow-hidden">
+      <SectionBackground />
         <Grid />
         <RecentProjects />
       </div>
