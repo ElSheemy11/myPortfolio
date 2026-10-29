@@ -4,6 +4,8 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @theme inline {
@@ -70,7 +72,7 @@ html {
   --animate-fourth: moveHorizontal 40s ease infinite;
   --animate-fifth: moveInCircle 20s ease infinite;
 }
- 
+
 @keyframes moveHorizontal {
   0% {
     transform: translateX(-50%) translateY(-10%);
@@ -82,7 +84,7 @@ html {
     transform: translateX(-50%) translateY(-10%);
   }
 }
- 
+
 @keyframes moveInCircle {
   0% {
     transform: rotate(0deg);
@@ -94,7 +96,7 @@ html {
     transform: rotate(360deg);
   }
 }
- 
+
 @keyframes moveVertical {
   0% {
     transform: translateY(-50%);
@@ -179,18 +181,24 @@ html {
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+    /* a stray wide element must never make the page scroll sideways on phones */
+    overflow-x: clip;
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer utilities {
   .heading {
-    @apply font-bold text-4xl md:text-5xl text-center;
+    @apply text-balance text-center text-3xl font-bold leading-tight sm:text-4xl md:text-5xl;
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Animated backgrounds                                                */
+/* ------------------------------------------------------------------ */
 
 .grid-base, .grid-glare { position: absolute; inset: 0; background-size: 64px 64px; animation: grid-drift 18s linear infinite; }
 .grid-base {
@@ -208,7 +216,7 @@ html {
 @keyframes grid-drift { to { background-position: 64px 64px; } }
 
 /* hue-shifting aurora */
-.aurora { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .8; mix-blend-mode: screen; }
+.aurora { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .8; mix-blend-mode: screen; will-change: transform; }
 .aurora-a { width: 48rem; height: 48rem; left: -12%; top: -22%; background: #4f46e5; animation: aurora-a 12s ease-in-out infinite alternate; }
 .aurora-b { width: 42rem; height: 42rem; right: -12%; top: 2%; background: #9333ea; animation: aurora-b 14s ease-in-out infinite alternate; }
 .aurora-c { width: 36rem; height: 36rem; left: 28%; bottom: -28%; background: #0ea5e9; animation: aurora-c 16s ease-in-out infinite alternate; }
@@ -218,37 +226,15 @@ html {
 @keyframes aurora-c { to { transform: translate(18%, -16%) scale(1.25); filter: blur(70px) hue-rotate(70deg); } }
 @keyframes aurora-d { to { transform: translate(-30%, -10%) scale(1.4); filter: blur(70px) hue-rotate(-80deg); } }
 
-/* rotating light beams */
-/* .beams {
-  position: absolute; left: 50%; top: 50%; width: 150vmax; height: 150vmax;
-  background: conic-gradient(from 0deg, transparent 0 6%, rgba(139,92,246,.35) 10%, transparent 16% 38%, rgba(14,165,233,.3) 44%, transparent 50% 72%, rgba(236,72,153,.3) 78%, transparent 84%);
-  mask-image: radial-gradient(circle at center, black 0%, transparent 55%);
-  mix-blend-mode: screen; animation: beams-spin 36s linear infinite;
-} */
-/* @keyframes beams-spin { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } } */
-
-/* pulsing rings */
-/* .ring {
-  position: absolute; left: 50%; top: 50%; width: 20rem; height: 20rem; border-radius: 9999px;
-  border: 1px solid rgba(196,181,253,.7); box-shadow: 0 0 40px rgba(139,92,246,.5), inset 0 0 40px rgba(139,92,246,.3); */
-  /* transform: translate(-50%, -50%) scale(.2); opacity: 0; animation: ring-pulse 6s ease-out infinite; */
-/* } */
-/* @keyframes ring-pulse { 0% { transform: translate(-50%, -50%) scale(.2); opacity: .9; } 100% { transform: translate(-50%, -50%) scale(4.5); opacity: 0; } } */
-
 /* glowing stars */
 .star { position: absolute; border-radius: 9999px; background: #fff; box-shadow: 0 0 6px 1px currentColor; animation: twinkle 3s ease-in-out infinite; }
 .star-hot { box-shadow: 0 0 12px 3px currentColor; animation-name: twinkle-hot; }
 @keyframes twinkle { 0%, 100% { opacity: .2; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
 @keyframes twinkle-hot { 0%, 100% { opacity: .3; transform: scale(.7); } 50% { opacity: 1; transform: scale(1.8); } }
 
-/* light sweep */
-/* .sweep { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.16) 50%, transparent 60%); transform: translateX(-100%); animation: sweep 7s ease-in-out infinite; }
-@keyframes sweep { 0%, 45% { transform: translateX(-100%); } 100% { transform: translateX(100%); } } */
-
-@media (prefers-reduced-motion: reduce) {
-  .grid-base, .grid-glare, .aurora, .star, .sweep, .beams, .ring { animation: none; }
-  .ring { opacity: 0; }
-}
+/* ------------------------------------------------------------------ */
+/* Text + card effects                                                 */
+/* ------------------------------------------------------------------ */
 
 .text-shimmer {
   background-size: 200% auto;
@@ -257,22 +243,6 @@ html {
 @keyframes shimmer {
   to { background-position: 200% center; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .text-shimmer { animation: none; }
-}
-
-
-@property --bento-ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-
-/* always-on rotating light border */
-/* .bento-border {
-  position: absolute; inset: 0; z-index: 20; border-radius: inherit; padding: 1.5px; pointer-events: none;
-  background: conic-gradient(from var(--bento-ang), transparent 0%, transparent 55%, var(--accent) 80%, #fff 92%, transparent 100%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor; mask-composite: exclude;
-  opacity: .75; animation: bento-spin 7s linear infinite;
-} */
-@keyframes bento-spin { to { --bento-ang: 360deg; } }
 
 /* drifting accent glow blobs inside each card */
 .bento-blob { position: absolute; width: 16rem; height: 16rem; border-radius: 9999px; filter: blur(70px); opacity: .3; pointer-events: none; animation: blob-drift 14s ease-in-out infinite alternate; }
@@ -294,14 +264,57 @@ html {
 .bento-orbit::after { content: ""; position: absolute; inset: 1.2rem; border-radius: 9999px; border: 1px dashed rgba(56,189,248,.45); }
 @keyframes orbit-spin { to { transform: rotate(360deg); } }
 
-@media (prefers-reduced-motion: reduce) {
-  .bento-border, .bento-blob, .chip-float, .bento-progress, .bento-orbit { animation: none; }
-}
-
-
+/* the contact section keeps its background calmer so the text stays readable */
 .contact-calm .beams,
 .contact-calm .ring,
 .contact-calm .sweep { display: none; }
 .contact-calm .aurora { opacity: .4; }
 .contact-calm .cursor-glow,
 .contact-calm .grid-glare { opacity: .6; }
+
+/* ------------------------------------------------------------------ */
+/* Phones & tablets in portrait                                        */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 767px) {
+  .beams, .ring, .sweep { display: none; }                  /* heavy full-screen layers */
+
+  /* huge blurred layers + screen blending are the main cause of scroll jank on phones */
+  .aurora { filter: blur(40px); opacity: .5; mix-blend-mode: normal; }
+  .aurora-a, .aurora-b, .aurora-c { width: 22rem; height: 22rem; }
+  .aurora-d { display: none; }
+  @keyframes aurora-a { to { transform: translate(16%, 10%) scale(1.15); filter: blur(40px); } }
+  @keyframes aurora-b { to { transform: translate(-14%, 14%) scale(1.15); filter: blur(40px); } }
+  @keyframes aurora-c { to { transform: translate(12%, -10%) scale(1.12); filter: blur(40px); } }
+
+  .contact-calm .aurora { opacity: .3; }
+
+  .star:nth-child(n+41) { display: none; }                  /* 150 stars -> 40 */
+  .star-hot { box-shadow: 0 0 8px 2px currentColor; }       /* smaller glow = cheaper paint */
+
+  .grid-base, .grid-glare { background-size: 44px 44px; }   /* finer grid fits narrow screens */
+  .grid-glare, .cursor-glow { display: none; }              /* no cursor on touch */
+
+  .bento-blob { filter: blur(48px); width: 11rem; height: 11rem; }
+  .bento-blob-b { display: none; }
+  .bento-orbit { width: 5.5rem; height: 5.5rem; }
+  .chip-float { animation-duration: 4.5s; }
+}
+
+/* touch screens: no hover, so skip effects that rely on a cursor */
+@media (hover: none) {
+  .cursor-glow, .grid-glare { display: none; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-base, .grid-glare, .aurora, .star, .sweep, .beams, .ring,
+  .text-shimmer, .bento-blob, .chip-float, .bento-progress, .bento-orbit {
+    animation: none;
+  }
+  .ring { opacity: 0; }
+  html { scroll-behavior: auto; }
+}

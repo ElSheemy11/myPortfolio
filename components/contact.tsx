@@ -20,8 +20,16 @@ const SOCIALS: Record<number, { label: string; color: string }> = {
   5: { label: "WhatsApp", color: "#22c55e" },
 };
 
-/** Pulls its children slightly toward the cursor. */
-function Magnetic({ children, strength = 0.3 }: { children: React.ReactNode; strength?: number }) {
+/** Pulls its children slightly toward the cursor (mouse only, never on touch). */
+function Magnetic({
+  children,
+  strength = 0.3,
+  className = "inline-block",
+}: {
+  children: React.ReactNode;
+  strength?: number;
+  className?: string;
+}) {
   const reduce = useReducedMotion() ?? false;
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
@@ -30,7 +38,8 @@ function Magnetic({ children, strength = 0.3 }: { children: React.ReactNode; str
   const sy = useSpring(y, { stiffness: 220, damping: 16, mass: 0.4 });
 
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (reduce || !ref.current) return;
+    // touch / pen pointers would make buttons jump around while scrolling
+    if (reduce || e.pointerType !== "mouse" || !ref.current) return;
     const r = ref.current.getBoundingClientRect();
     x.set((e.clientX - (r.left + r.width / 2)) * strength);
     y.set((e.clientY - (r.top + r.height / 2)) * strength);
@@ -41,7 +50,7 @@ function Magnetic({ children, strength = 0.3 }: { children: React.ReactNode; str
   };
 
   return (
-    <motion.div ref={ref} style={{ x: sx, y: sy }} onPointerMove={onMove} onPointerLeave={onLeave} className="inline-block">
+    <motion.div ref={ref} style={{ x: sx, y: sy }} onPointerMove={onMove} onPointerLeave={onLeave} className={className}>
       {children}
     </motion.div>
   );
@@ -74,9 +83,12 @@ function Burst({ trigger }: { trigger: number }) {
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
+  viewport: { once: true, margin: "-40px" },
   transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
 });
+
+const linkBtn =
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-md border border-white/15 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur transition hover:border-purple-300/40 hover:bg-white/10 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 sm:w-auto";
 
 /* ------------------------------------------------------------------ */
 /* Section                                                             */
@@ -124,12 +136,15 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="relative isolate w-full overflow-hidden px-4 pb-8 pt-28">
+    <section id="contact" className="relative isolate w-full overflow-hidden px-4 pb-6 pt-20 md:pb-8 md:pt-28">
       <SectionBackground variant="contact" />
 
       <div className="relative mx-auto max-w-3xl text-center">
-        {/* slowly orbiting rings behind the content */}
-        <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2">
+        {/* slowly orbiting rings behind the content (softer on phones so text stays readable) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2 opacity-60 md:opacity-100"
+        >
           {/* soft dark disc so the rings read against the glare */}
           <div className="absolute -inset-[10%] rounded-full bg-[radial-gradient(circle,rgba(0,3,25,0.8)_0%,rgba(0,3,25,0.45)_55%,transparent_75%)]" />
 
@@ -137,7 +152,7 @@ export default function Contact() {
           <motion.div
             animate={reduce ? undefined : { rotate: 360 }}
             transition={{ duration: 70, repeat: Infinity, ease: "linear" }}
-            className="relative size-[min(92vw,30rem)] rounded-full border border-dashed border-purple-300/50 shadow-[0_0_40px_rgba(167,139,250,0.35),inset_0_0_40px_rgba(167,139,250,0.2)]"
+            className="relative size-[min(92vw,30rem)] rounded-full border border-dashed border-purple-300/50 shadow-[0_0_24px_rgba(167,139,250,0.3),inset_0_0_24px_rgba(167,139,250,0.18)] md:shadow-[0_0_40px_rgba(167,139,250,0.35),inset_0_0_40px_rgba(167,139,250,0.2)]"
           >
             <span className="absolute -top-2 left-1/2 size-4 -translate-x-1/2 rounded-full bg-purple-200 shadow-[0_0_22px_8px_rgba(167,139,250,0.9)]" />
             <span className="absolute -bottom-1.5 left-1/2 size-3 -translate-x-1/2 rounded-full bg-fuchsia-300 shadow-[0_0_18px_6px_rgba(232,121,249,0.85)]" />
@@ -162,10 +177,9 @@ export default function Contact() {
           </motion.div>
         </div>
 
-
         {/* availability badge */}
-        <motion.div {...fadeUp(0)} className="mb-6 flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs uppercase tracking-widest text-neutral-200 backdrop-blur">
+        <motion.div {...fadeUp(0)} className="mb-5 flex justify-center md:mb-6">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-[11px] uppercase tracking-widest text-neutral-200 backdrop-blur sm:px-4 sm:text-xs">
             <span className="relative flex size-2">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400/70" />
               <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
@@ -174,7 +188,7 @@ export default function Contact() {
           </span>
         </motion.div>
 
-        <h2 className="heading flex flex-wrap justify-center gap-x-3">
+        <h2 className="heading flex flex-wrap justify-center gap-x-2.5 sm:gap-x-3">
           {["Let's", "build", "something"].map((w, i) => (
             <motion.span
               key={w}
@@ -197,20 +211,20 @@ export default function Contact() {
           </motion.span>
         </h2>
 
-        <motion.p {...fadeUp(0.6)} className="mx-auto mt-5 max-w-xl text-neutral-300">
+        <motion.p {...fadeUp(0.6)} className="mx-auto mt-4 max-w-xl text-balance text-sm text-neutral-300 sm:mt-5 sm:text-base">
           Have a project in mind? Send me a message and I&apos;ll get back to you.
         </motion.p>
 
         {/* email pill */}
-        <motion.div {...fadeUp(0.7)} className="mt-8 flex justify-center">
-          <div className="group relative inline-flex max-w-full items-center gap-3 rounded-full border border-white/10 bg-white/5 py-2 pl-4 pr-2 text-sm text-neutral-200 backdrop-blur transition-colors hover:border-purple-300/40">
+        <motion.div {...fadeUp(0.7)} className="mt-7 flex justify-center md:mt-8">
+          <div className="group relative flex w-full max-w-sm min-w-0 items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-4 pr-1.5 text-sm text-neutral-200 backdrop-blur transition-colors hover:border-purple-300/40 sm:inline-flex sm:w-auto sm:max-w-full sm:py-2 sm:pr-2">
             <IoMailOutline className="shrink-0 text-purple-300" />
-            <span className="truncate">{contact.email}</span>
+            <span className="min-w-0 flex-1 truncate text-left sm:flex-none">{contact.email}</span>
             <button
               type="button"
               onClick={copy}
               aria-label="Copy email address"
-              className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-purple-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+              className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-purple-500/40 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 sm:size-8"
             >
               {copied ? <IoCheckboxOutline /> : <IoCopyOutline />}
               <Burst trigger={burst} />
@@ -218,9 +232,13 @@ export default function Contact() {
           </div>
         </motion.div>
 
-        {/* actions */}
-        <motion.div {...fadeUp(0.8)} className="mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Magnetic>
+        {/* actions: stacked full-width on phones, inline row from sm up */}
+        <motion.div
+          {...fadeUp(0.8)}
+          className="mx-auto mt-6 flex max-w-xs flex-col items-stretch gap-3 sm:mt-8 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4"
+        >
+          {/* the pill above already has a copy button, so this one is desktop-only */}
+          <Magnetic className="hidden sm:inline-block">
             <MagicButton
               title={copied ? "Email copied!" : "Copy my email"}
               icon={copied ? <IoCheckboxOutline /> : <IoCopyOutline />}
@@ -228,28 +246,21 @@ export default function Contact() {
               handleClick={copy}
             />
           </Magnetic>
-          <Magnetic>
-            <a
-              href={`mailto:${contact.email}`}
-              className="inline-flex h-12 items-center gap-2 rounded-md border border-white/15 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur transition hover:border-purple-300/40 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
-            >
+          <Magnetic className="w-full sm:w-auto">
+            <a href={`mailto:${contact.email}`} className={linkBtn}>
               <IoMailOutline /> Send an email
             </a>
           </Magnetic>
-          <Magnetic>
-            <a
-              href={contact.github}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center gap-2 rounded-md border border-white/15 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur transition hover:border-purple-300/40 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
-            >
+          <Magnetic className="w-full sm:w-auto">
+            <a href={contact.github} target="_blank" rel="noreferrer" className={linkBtn}>
               <FaGithub /> GitHub
             </a>
           </Magnetic>
         </motion.div>
-        <motion.div {...fadeUp(0.9)} className="mt-10 flex flex-col items-center gap-4">
-          <span className="text-xs uppercase tracking-[0.3em] text-neutral-400">Or find me here</span>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+
+        <motion.div {...fadeUp(0.9)} className="mt-9 flex flex-col items-center gap-4 md:mt-10">
+          <span className="text-[11px] uppercase tracking-[0.3em] text-neutral-400 sm:text-xs">Or find me here</span>
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {socialMedia.map((s, i) => {
               const meta = SOCIALS[s.id] ?? { label: "Link", color: "#a78bfa" };
               return (
@@ -264,11 +275,13 @@ export default function Contact() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 1 + i * 0.1 }}
                   whileHover={{ y: -6, scale: 1.12 }}
+                  whileTap={{ scale: 0.92 }}
                   style={{ "--c": meta.color } as React.CSSProperties}
-                  className="group/s relative flex size-14 items-center justify-center rounded-2xl border border-white/15 bg-white/5 backdrop-blur transition-[border-color,box-shadow] duration-300 hover:border-[var(--c)] hover:shadow-[0_0_30px_var(--c)] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                  className="group/s relative flex size-12 items-center justify-center rounded-2xl border border-white/15 bg-white/5 backdrop-blur transition-[border-color,box-shadow] duration-300 hover:border-[var(--c)] hover:shadow-[0_0_30px_var(--c)] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 sm:size-14"
                 >
-                  <img src={s.img} alt="" className="size-6 transition duration-300 group-hover/s:scale-110" />
-                  <span className="pointer-events-none absolute -bottom-8 rounded-md bg-black/70 px-2 py-0.5 text-[11px] text-white opacity-0 transition duration-200 group-hover/s:opacity-100">
+                  <img src={s.img} alt="" className="size-5 transition duration-300 group-hover/s:scale-110 sm:size-6" />
+                  {/* tooltips only make sense with a hover-capable pointer */}
+                  <span className="pointer-events-none absolute -bottom-8 rounded-md bg-black/70 px-2 py-0.5 text-[11px] text-white opacity-0 transition duration-200 group-hover/s:opacity-100 [@media(pointer:coarse)]:hidden">
                     {meta.label}
                   </span>
                 </motion.a>
@@ -281,28 +294,31 @@ export default function Contact() {
       {/* footer */}
       <motion.footer
         {...fadeUp(0.2)}
-        className="relative mx-auto mt-28 flex w-full max-w-6xl items-center justify-between border-t border-white/10 py-8 text-sm text-neutral-400"
+        className="relative mx-auto mt-16 flex w-full max-w-6xl flex-col items-center gap-5 border-t border-white/10 pb-[max(2rem,env(safe-area-inset-bottom))] pt-8 text-sm text-neutral-400 sm:flex-row sm:justify-between md:mt-28"
       >
         <div aria-hidden className="absolute inset-x-0 -top-px mx-auto h-px w-1/2 bg-linear-to-r from-transparent via-purple-400/70 to-transparent" />
-        <p>© {new Date().getFullYear()} Momen Sheemy</p>
-        <div className="flex items-center gap-4">
-          {socialMedia.map((s) => (
-            <a
-              key={s.id}
-              href={s.link}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={SOCIALS[s.id]?.label ?? "Link"}
-              className="opacity-60 transition hover:-translate-y-0.5 hover:opacity-100"
-            >
-              <img src={s.img} alt="" className="size-5" />
-            </a>
-          ))}
+        <p className="order-2 sm:order-1">© {new Date().getFullYear()} Momen Sheemy</p>
+        <div className="order-1 flex items-center gap-4 sm:order-2">
+          {/* social icons are already shown above on phones, so only repeat them from sm up */}
+          <div className="hidden items-center gap-4 sm:flex">
+            {socialMedia.map((s) => (
+              <a
+                key={s.id}
+                href={s.link}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={SOCIALS[s.id]?.label ?? "Link"}
+                className="opacity-60 transition hover:-translate-y-0.5 hover:opacity-100"
+              >
+                <img src={s.img} alt="" className="size-5" />
+              </a>
+            ))}
+          </div>
           <button
             type="button"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" })}
             aria-label="Back to top"
-            className="flex size-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-1 hover:border-purple-300/50 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+            className="flex size-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition hover:-translate-y-1 hover:border-purple-300/50 hover:bg-white/10 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 sm:size-9"
           >
             <FaArrowUp />
           </button>

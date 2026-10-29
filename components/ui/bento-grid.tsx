@@ -22,7 +22,7 @@ export const BentoGrid = ({ className, children }: { className?: string; childre
   return (
     <div
       className={cn(
-        "mx-auto grid grid-cols-1 gap-5 px-4 md:auto-rows-[8rem] md:grid-cols-6 lg:grid-cols-5",
+        "mx-auto grid max-w-7xl grid-cols-1 gap-4 md:auto-rows-[8rem] md:grid-cols-6 md:gap-5 lg:grid-cols-5",
         className,
       )}
     >
@@ -31,7 +31,6 @@ export const BentoGrid = ({ className, children }: { className?: string; childre
   );
 };
 
-// Each card gets its own accent color (border light, glow blobs, icon)
 const ACCENT: Record<number, string> = {
   1: "#8b5cf6", 2: "#22d3ee", 3: "#f472b6", 4: "#818cf8", 5: "#e879f9", 6: "#a78bfa",
 };
@@ -50,8 +49,18 @@ const STACK_RIGHT = [
 ];
 
 const stackChip =
-  "chip-float flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-linear-to-br from-[#1b1f4a] to-[#0b0d26] px-3 py-2 text-xs text-white/90 shadow-lg shadow-black/30 backdrop-blur transition duration-300 hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:shadow-purple-500/30 lg:px-4 lg:py-4 lg:text-base";
-const stackBlank = "rounded-xl border border-white/5 bg-[#10132E]/60 px-3 py-3.5 lg:px-6 lg:py-6";
+  "chip-float flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-linear-to-br from-[#1b1f4a] to-[#0b0d26] px-3 py-2 text-xs text-white/90 shadow-lg shadow-black/30 transition duration-300 hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:shadow-purple-500/30 md:backdrop-blur lg:px-4 lg:py-4 lg:text-base";
+const stackBlank = "hidden rounded-xl border border-white/5 bg-[#10132E]/60 px-3 py-3.5 md:block lg:px-6 lg:py-6";
+
+// Cards are auto-height on mobile, so each gets a sensible minimum (reset at md+, where grid rows take over)
+const MOBILE_MIN: Record<number, string> = {
+  1: "min-h-[18rem]",
+  2: "min-h-[22rem]",
+  3: "min-h-[17rem]",
+  4: "min-h-[9rem]",
+  5: "min-h-[19rem]",
+  6: "min-h-[15rem]",
+};
 
 export const BentoGridItem = ({
   className,
@@ -80,7 +89,6 @@ export const BentoGridItem = ({
   const accent = ACCENT[n] ?? "#8b5cf6";
   const tilt = !reduce && n !== 2; // keep the globe card flat so dragging the globe feels right
 
-  // 3D tilt following the cursor
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [5, -5]), { stiffness: 180, damping: 18 });
@@ -93,6 +101,7 @@ export const BentoGridItem = ({
   };
 
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== "mouse") return; // no tilt / glare while touch-scrolling
     const r = e.currentTarget.getBoundingClientRect();
     e.currentTarget.style.setProperty("--gx", `${e.clientX - r.left}px`);
     e.currentTarget.style.setProperty("--gy", `${e.clientY - r.top}px`);
@@ -105,35 +114,34 @@ export const BentoGridItem = ({
     <motion.div
       initial={{ opacity: 0, y: 40, scale: 0.94 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay: n * 0.09, ease: "easeOut" }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.7, delay: Math.min(n, 3) * 0.08, ease: "easeOut" }}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
+      onPointerCancel={onLeave}
       className={cn(
-        "group/bento relative row-span-1 flex flex-col justify-between space-y-4 overflow-hidden rounded-3xl border border-white/10 backdrop-blur-md",
+        "group/bento relative row-span-1 flex flex-col justify-between space-y-4 overflow-hidden rounded-3xl border border-white/10 md:backdrop-blur-md",
         "shadow-xl shadow-black/50 transition-shadow duration-300 hover:-translate-y-1 hover:border-white/20",
+        MOBILE_MIN[n],
+        "md:min-h-0",
         className,
       )}
       style={{
         background:
-          "linear-gradient(135deg, rgba(10,10,46,0.82) 0%, rgba(6,6,40,0.78) 45%, rgba(26,10,82,0.85) 100%)",
+          "linear-gradient(135deg, rgba(10,10,46,0.88) 0%, rgba(6,6,40,0.84) 45%, rgba(26,10,82,0.9) 100%)",
         rotateX: tilt ? rotateX : 0,
         rotateY: tilt ? rotateY : 0,
         transformPerspective: 1000,
-        boxShadow: undefined,
       }}
       whileHover={{ boxShadow: `0 25px 70px -15px ${accent}88` }}
     >
-      {/* ambient accent glow blobs */}
       <div aria-hidden className="bento-blob bento-blob-a" style={{ background: accent }} />
       <div aria-hidden className="bento-blob bento-blob-b" style={{ background: accent }} />
 
-      {/* dotted texture */}
       {(n === 1 || n === 3) && (
         <div aria-hidden className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(rgba(255,255,255,0.09)_1px,transparent_1px)] [background-size:18px_18px] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
       )}
 
-      {/* top highlight edge */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-20 h-px bg-linear-to-r from-transparent via-white/40 to-transparent" />
 
       {n === 1 && <div aria-hidden className="bento-orbit pointer-events-none absolute right-6 top-6 hidden md:block" />}
@@ -156,7 +164,7 @@ export const BentoGridItem = ({
         >
           {ICON[n] && (
             <span
-              className="relative z-10 mb-3 grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/5 text-lg backdrop-blur transition duration-300 group-hover/bento:rotate-6 group-hover/bento:scale-110"
+              className="relative z-10 mb-3 grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/5 text-lg transition duration-300 group-hover/bento:rotate-6 group-hover/bento:scale-110"
               style={{ color: accent, boxShadow: `0 0 24px ${accent}55, inset 0 0 12px ${accent}22` }}
             >
               {ICON[n]}
@@ -175,7 +183,7 @@ export const BentoGridItem = ({
             <div className="font-sans text-sm font-light tracking-wide text-[#c1c2d3] md:text-xs lg:text-base">{description}</div>
           )}
 
-          <div className="z-10 max-w-96 bg-linear-to-b from-white to-neutral-300 bg-clip-text font-sans text-lg font-bold text-transparent lg:text-2xl">
+          <div className="z-10 max-w-96 bg-linear-to-b from-white to-neutral-300 bg-clip-text font-sans text-xl font-bold leading-snug text-transparent md:text-lg lg:text-2xl">
             {title}
           </div>
 
@@ -186,8 +194,8 @@ export const BentoGridItem = ({
           )}
 
           {n === 3 && (
-            <div className="absolute -right-3 top-2 flex w-fit gap-1 opacity-95 lg:-right-5">
-              <div className="m-4 flex flex-col gap-1 lg:gap-2">
+            <div className="relative z-10 mt-4 flex flex-wrap gap-2 md:absolute md:-right-3 md:top-2 md:mt-0 md:w-fit md:flex-nowrap md:gap-1 md:opacity-95 lg:-right-5">
+              <div className="contents md:m-4 md:flex md:flex-col md:gap-1 lg:gap-2">
                 {STACK_LEFT.map((s, i) => (
                   <span key={s.n} className={stackChip} style={{ animationDelay: `${i * 0.4}s` }}>
                     <i className="h-2 w-2 rounded-full" style={{ background: s.c, boxShadow: `0 0 10px ${s.c}` }} />
@@ -196,7 +204,7 @@ export const BentoGridItem = ({
                 ))}
                 <span className={stackBlank} />
               </div>
-              <div className="flex flex-col gap-1 lg:gap-2">
+              <div className="contents md:flex md:flex-col md:gap-1 lg:gap-2">
                 <span className={stackBlank} />
                 {STACK_RIGHT.map((s, i) => (
                   <span key={s.n} className={stackChip} style={{ animationDelay: `${0.6 + i * 0.4}s` }}>
@@ -236,15 +244,12 @@ export const BentoGridItem = ({
         {n === 2 && <GlobeDemo />}
       </div>
 
-      {/* cursor glare */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-20 opacity-0 transition-opacity duration-300 group-hover/bento:opacity-100"
         style={{ background: "radial-gradient(420px circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,0.1), transparent 60%)" }}
       />
-      {/* always-on rotating light border */}
       <div aria-hidden className="bento-border" style={{ "--accent": accent } as React.CSSProperties} />
-      {/* cursor-following bright border */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-20 rounded-[inherit] opacity-0 transition-opacity duration-300 group-hover/bento:opacity-100"
@@ -256,7 +261,6 @@ export const BentoGridItem = ({
           maskComposite: "exclude",
         }}
       />
-      {/* shine sweep on hover */}
       <div aria-hidden className="pointer-events-none absolute inset-0 z-20 -translate-x-full bg-linear-to-r from-transparent via-white/15 to-transparent transition-transform duration-1000 ease-out group-hover/bento:translate-x-full" />
     </motion.div>
   );

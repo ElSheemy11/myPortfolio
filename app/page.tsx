@@ -21,7 +21,6 @@ export default function Home() {
       <Experience />
       <div className="mx-auto mb-20 mt-8 h-px w-40 bg-linear-to-r from-transparent via-purple-400 to-transparent" />
       <Contact />
-      <div className="mx-auto mb-20 mt-8 h-px w-40 bg-linear-to-r from-transparent via-purple-400 to-transparent" />
     </main>
   );
 }

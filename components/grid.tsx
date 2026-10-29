@@ -7,15 +7,15 @@ import { gridItems } from "@/data";
 const Grid = () => {
   return (
     <div className="relative isolate overflow-hidden">
-      <section id="about" className="relative py-24 px-24">
+      <section id="about" className="relative px-4 py-16 sm:px-8 md:px-10 md:py-24 lg:px-24">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="mb-16 flex flex-col items-center"
+          className="mb-10 flex flex-col items-center md:mb-16"
         >
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-purple-200 shadow-[0_0_30px_rgba(168,85,247,0.35)] backdrop-blur">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-200 shadow-[0_0_30px_rgba(168,85,247,0.35)] backdrop-blur md:mb-5 md:px-4 md:text-xs md:tracking-[0.3em]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300 shadow-[0_0_8px_2px_rgba(216,180,254,0.9)]" />
             About
           </span>
@@ -25,7 +25,7 @@ const Grid = () => {
               about me
             </span>
           </h2>
-          <div aria-hidden className="mt-5 h-px w-56 bg-linear-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_14px_2px_rgba(168,85,247,0.7)]" />
+          <div aria-hidden className="mt-4 h-px w-40 bg-linear-to-r from-transparent via-purple-400 to-transparent shadow-[0_0_14px_2px_rgba(168,85,247,0.7)] md:mt-5 md:w-56" />
         </motion.div>
 
         <BentoGrid>

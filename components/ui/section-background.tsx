@@ -116,7 +116,7 @@ export default function SectionBackground({ variant = "experience" }: { variant?
           {SHOOTING.map((s, i) => (
             <motion.span
               key={i}
-              className="absolute block h-[2px] w-44 rounded-full bg-linear-to-r from-transparent via-purple-300 to-white shadow-[0_0_14px_3px_rgba(196,181,253,0.9)]"
+              className="absolute block max-md:hidden h-[2px] w-44 rounded-full bg-linear-to-r from-transparent via-purple-300 to-white shadow-[0_0_14px_3px_rgba(196,181,253,0.9)]"
               style={{ left: s.left, top: s.top, rotate: 35 }}
               initial={{ x: 0, y: 0, opacity: 0 }}
               animate={{ x: 520, y: 365, opacity: [0, 1, 0] }}
@@ -128,7 +128,7 @@ export default function SectionBackground({ variant = "experience" }: { variant?
           {PARTICLES.map((p, i) => (
             <motion.span
               key={i}
-              className={`absolute block rounded-full ${p.color} shadow-[0_0_14px_4px_rgba(196,181,253,0.8)]`}
+              className={`absolute block max-md:hidden rounded-full ${p.color} shadow-[0_0_14px_4px_rgba(196,181,253,0.8)]`}
               style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.size, height: p.size }}
               initial={{ y: 0, opacity: 0, scale: 0.6 }}
               animate={{ y: -p.rise, opacity: [0, 1, 0], scale: [0.6, 1.4, 0.8] }}
