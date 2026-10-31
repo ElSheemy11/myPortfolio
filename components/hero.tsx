@@ -1,7 +1,6 @@
 "use client";
 import { useRef } from "react";
 import { FaGithub, FaLocationArrow } from "react-icons/fa6";
-import { Spotlight } from "./ui/spotlight";
 import { TextGenerateEffect } from "./ui/text-generate-effect";
 import MagicButton from "./ui/magic-button";
 import { contact } from "@/data";
@@ -49,9 +48,7 @@ const Hero = () => {
           />
         ))}
         <div className="sweep" />
-        <Spotlight className="-top-40 -left-10 h-screen md:-top-32 md:-left-20" fill="white" />
-        <Spotlight className="top-10 left-[70%] h-[80vh] w-[50vw]" fill="purple" />
-        <Spotlight className="top-28 left-80 h-[80vh] w-[50vw]" fill="blue" />
+       
         {/* edge fade so the grid melts into the page */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,#000319_88%)]" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent to-[#000319]" />
