@@ -25,7 +25,7 @@ export const projects = [
     id: 1,
     title: "Auric Hotel-demo: Hospitality Websites & Dashboards",
     des: "A premium digital solution for hotels and tourism businesses, featuring bilingual Arabic/English websites, multi-tenant architecture, private management dashboards, and WhatsApp-confirmed booking requests.",
-    img: "/auric.png",
+    img: "/auric.webp",
     iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/c.svg"],
     link: "https://auric-hoteldemo.vercel.app/en",
   },
@@ -33,7 +33,7 @@ export const projects = [
     id: 2,
     title: "RED: PlayStation Lounge Manager",
     des: "A Windows desktop management system for gaming lounges, featuring room management, timed gaming sessions, automated billing, customer accounts, prepaid balances, staff authentication, and receipt printing.",
-    img: "/red.png",
+    img: "/red.webp",
     iconLists: [],
     link: "https://github.com/ElSheemy11",
   },
@@ -41,7 +41,7 @@ export const projects = [
     id: 3,
     title: "reFrame.ai: Edit Photos with Words",
     des: "An AI-powered photo editing platform that transforms images using natural-language prompts, enabling users to reimagine backgrounds, lighting, styles, and visual details.",
-    img: "/reframe.png",
+    img: "/reframe.webp",
     iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/re.svg"],
     link: "https://re-frame-ai.vercel.app/",
   },
@@ -49,7 +49,7 @@ export const projects = [
     id: 4,
     title: "High Up: Social Media Platform",
     des: "A full-stack social media application with secure authentication, post creation, photo sharing, and a responsive interface, built with Next.js and a PostgreSQL database.",
-    img: "/highup.png",
+    img: "/highup.webp",
     iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/c.svg"],
     link: "https://high-up.vercel.app",
   },
@@ -57,7 +57,7 @@ export const projects = [
     id: 5,
     title: "Chattrix: Real-Time Messenger",
     des: "A full-stack messaging application featuring authentication, conversations, real-time communication, typing indicators, and customizable themes, powered by the MERN stack and Socket.IO.",
-    img: "/chattrix.png",
+    img: "/chattrix.webp",
     iconLists: ["/re.svg", "/tail.svg"],
     link: "https://chattrix-seven.vercel.app",
   },
@@ -65,7 +65,7 @@ export const projects = [
     id: 6,
     title: "PulseCore AI: Your Personal Fitness Coach",
     des: "An AI-powered fitness coaching platform that helps users pursue their fitness goals with personalized workout planning, fitness profiles, and voice-based AI coaching.",
-    img: "/pulsecore.png",
+    img: "/pulsecore.webp",
     iconLists: ["/next.svg", "/tail.svg", "/ts.svg", "/c.svg"],
     link: "https://pulse-core-ai.vercel.app/",
   },
@@ -73,7 +73,7 @@ export const projects = [
     id: 7,
     title: "Book-Lock: Online Bookstore",
     des: "A full-stack bookstore project designed to provide an organized shopping experience, with a focus on product discovery, book listings, and scalable application architecture.",
-    img: "/book-lock.png",
+    img: "",
     iconLists: ["/re.svg", "/tail.svg"],
     link: "https://github.com/ElSheemy11",
   },
@@ -81,14 +81,11 @@ export const projects = [
     id: 8,
     title: "Assembly: Word Guessing Game",
     des: "A fun hangman-style word guessing game with multiple levels. Players receive hints about the word’s difficulty level and try to guess it before running out of chances. Built with React for an interactive and responsive gameplay experience.",
-    img: "/assembly.png",
+    img: "/assembly.webp",
     iconLists: ["/re.svg", "/tail.svg", "/ts.svg"],
     link: "https://assembly-endgame-theta-rose.vercel.app/",
   },
 ];
-
-export const testimonials: { quote: string; name: string; title: string }[] = [];
-export const companies: { id: number; name: string; img: string; nameImg: string }[] = [];
 
 export const workExperience = [
   {

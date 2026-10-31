@@ -10,14 +10,14 @@ const MagicButton = (props:{
     copied?: boolean
 }) => {
   return (
-      <button className={`relative inline-flex h-12 overflow-hidden rounded-md p-px `} onClick={props.handleClick}>
-        <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-        <span className={`inline-flex h-full w-full cursor-pointer items-center justify-center rounded-md bg-slate-950 px-7 text-sm font-medium gap-2 text-white backdrop-blur-3xl ${props.otherClasses}`}>
-            {props.position === "left" &&  props.icon }
+      <button className="relative inline-flex h-12 overflow-hidden rounded-md p-px focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400" onClick={props.handleClick}>
+        <span className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] motion-reduce:animate-none bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+        <span className={`relative inline-flex h-full w-full cursor-pointer items-center justify-center rounded-md bg-slate-950 px-7 text-sm font-medium gap-2 text-white ${props.otherClasses ?? ""}`}>
+            {props.position === "left" && (props.copied && props.iconCopied ? props.iconCopied : props.icon)}
             {props.title}
-            {props.position === "right" && props.icon}
+            {props.position === "right" && (props.copied && props.iconCopied ? props.iconCopied : props.icon)}
         </span>
-        </button>
+      </button>
   )
 }
 

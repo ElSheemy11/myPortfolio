@@ -1,12 +1,26 @@
 "use client";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
 export function GlareCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  const frameRef = useRef<number | null>(null);
+
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--gx", `${e.clientX - r.left}px`);
-    e.currentTarget.style.setProperty("--gy", `${e.clientY - r.top}px`);
+    if (e.pointerType !== "mouse") return;
+    const target = e.currentTarget;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      if (!target) return;
+      const r = target.getBoundingClientRect();
+      target.style.setProperty("--gx", `${clientX - r.left}px`);
+      target.style.setProperty("--gy", `${clientY - r.top}px`);
+    });
   };
+
   return (
     <div
       onPointerMove={onMove}

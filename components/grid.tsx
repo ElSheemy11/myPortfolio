@@ -7,7 +7,7 @@ import { gridItems } from "@/data";
 const Grid = () => {
   return (
     <div className="relative isolate overflow-hidden">
-      <section id="about" className="relative px-4 py-16 sm:px-8 md:px-10 md:py-24 lg:px-24">
+      <section id="about" className="relative px-4 py-16 sm:px-8 md:px-10 md:py-24 lg:px-24 cv-auto">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -15,7 +15,7 @@ const Grid = () => {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="mb-10 flex flex-col items-center md:mb-16"
         >
-          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-200 shadow-[0_0_30px_rgba(168,85,247,0.35)] backdrop-blur md:mb-5 md:px-4 md:text-xs md:tracking-[0.3em]">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-200 shadow-[0_0_30px_rgba(168,85,247,0.35)] md:mb-5 md:px-4 md:text-xs md:tracking-[0.3em]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-300 shadow-[0_0_8px_2px_rgba(216,180,254,0.9)]" />
             About
           </span>

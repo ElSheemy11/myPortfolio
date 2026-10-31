@@ -7,7 +7,7 @@ import { contact } from "@/data";
 
 const words = "Transforming Concepts into Seamless User Experiences";
 
-// Deterministic positions (no Math.random during render)
+// Deterministic positions (no Math.random during render) - 42 stars
 const stars = Array.from({ length: 42 }, (_, i) => ({
   left: (i * 37 + 11) % 100,
   top: (i * 53 + 7) % 100,
@@ -17,14 +17,23 @@ const stars = Array.from({ length: 42 }, (_, i) => ({
 
 const Hero = () => {
   const ref = useRef<HTMLElement>(null);
+  const frameRef = useRef<number | null>(null);
 
-  // Feeds the cursor position to the "glare" layer of the grid
+  // Throttled cursor position feed for the "glare" layer
   const onMove = (e: React.PointerEvent<HTMLElement>) => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
-    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+    if (e.pointerType !== "mouse") return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${clientX - r.left}px`);
+      el.style.setProperty("--my", `${clientY - r.top}px`);
+    });
   };
 
   return (
@@ -55,13 +64,13 @@ const Hero = () => {
       </div>
 
       <div className="relative z-10 flex max-w-[89vw] flex-col items-center text-center md:max-w-2xl lg:max-w-[60vw]">
-        <span className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs uppercase tracking-widest text-blue-100 backdrop-blur">
+        <span className="rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs uppercase tracking-widest text-blue-100">
           Front-end &amp; Full-stack · Aswan, Egypt
         </span>
         <TextGenerateEffect
           className="mt-5 text-center text-[40px] text-white md:text-5xl lg:text-6xl"
           words={words}
-          duration={1}
+          duration={0.8}
         />
         <p className="mb-8 max-w-2xl text-sm text-neutral-300 md:text-lg lg:text-xl">
           Hi, I&apos;m Sheemy, a web developer specializing in Next.js. I build fast, polished sites and dashboards, from hotel platforms to AI tools.
@@ -72,7 +81,7 @@ const Hero = () => {
             href={contact.github}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-12 items-center gap-2 rounded-md border border-white/15 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+            className="inline-flex h-12 items-center gap-2 rounded-md border border-white/15 bg-white/10 px-6 text-sm font-medium text-white transition hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
           >
             <FaGithub /> GitHub
           </a>

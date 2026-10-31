@@ -12,8 +12,8 @@ export default function Home() {
     <main className="relative flex w-full flex-col items-center overflow-x-clip bg-white dark:bg-[#000319]">
       <FloatingNav navItems={navItems} />
       <Hero />      
-      <div className="relative isolate w-full overflow-hidden">
-      <SectionBackground />
+      <div className="relative isolate w-full overflow-hidden cv-auto">
+        <SectionBackground />
         <Grid />
         <RecentProjects />
       </div>

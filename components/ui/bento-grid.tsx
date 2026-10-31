@@ -1,12 +1,11 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { BackgroundGradientAnimation } from "./background-gradient-animation";
-import { GlobeDemo } from "./grid-globe";
-import Lottie from "react-lottie";
-import { useState } from "react";
-import animationData from "@/data/confetti.json";
 import MagicButton from "./magic-button";
 import {
   IoCheckboxOutline,
@@ -17,6 +16,22 @@ import {
   IoSparklesOutline,
 } from "react-icons/io5";
 import { toast } from "sonner";
+import { contact } from "@/data";
+import { useIsMobile } from "@/lib/hooks";
+
+// Dynamically import heavy components to keep initial bundle light
+const GlobeDemo = dynamic(() => import("./grid-globe").then((m) => m.GlobeDemo), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center">
+      <div className="size-28 rounded-full border border-dashed border-sky-400/30 animate-spin" />
+    </div>
+  ),
+});
+
+const ConfettiLottie = dynamic(() => import("./confetti-lottie"), {
+  ssr: false,
+});
 
 export const BentoGrid = ({ className, children }: { className?: string; children?: React.ReactNode }) => {
   return (
@@ -49,7 +64,7 @@ const STACK_RIGHT = [
 ];
 
 const stackChip =
-  "chip-float flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-linear-to-br from-[#1b1f4a] to-[#0b0d26] px-3 py-2 text-xs text-white/90 shadow-lg shadow-black/30 transition duration-300 hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:shadow-purple-500/30 md:backdrop-blur lg:px-4 lg:py-4 lg:text-base";
+  "chip-float flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-linear-to-br from-[#1b1f4a] to-[#0b0d26] px-3 py-2 text-xs text-white/90 shadow-lg shadow-black/30 transition duration-300 hover:-translate-y-1 hover:scale-105 hover:border-purple-400/60 hover:shadow-purple-500/30 lg:px-4 lg:py-4 lg:text-base";
 const stackBlank = "hidden rounded-xl border border-white/5 bg-[#10132E]/60 px-3 py-3.5 md:block lg:px-6 lg:py-6";
 
 // Cards are auto-height on mobile, so each gets a sensible minimum (reset at md+, where grid rows take over)
@@ -85,9 +100,11 @@ export const BentoGridItem = ({
 }) => {
   const [copied, setCopied] = useState(false);
   const reduce = useReducedMotion();
+  const isMobile = useIsMobile();
+  const frameRef = useRef<number | null>(null);
   const n = id ?? 0;
   const accent = ACCENT[n] ?? "#8b5cf6";
-  const tilt = !reduce && n !== 2; // keep the globe card flat so dragging the globe feels right
+  const tilt = !reduce && n !== 2 && !isMobile;
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -95,32 +112,55 @@ export const BentoGridItem = ({
   const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 180, damping: 18 });
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("momenelshemy1@gmail.com");
+    navigator.clipboard.writeText(contact.email);
     setCopied(true);
     toast.success("Email copied to clipboard!");
   };
 
   const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType !== "mouse") return; // no tilt / glare while touch-scrolling
-    const r = e.currentTarget.getBoundingClientRect();
-    e.currentTarget.style.setProperty("--gx", `${e.clientX - r.left}px`);
-    e.currentTarget.style.setProperty("--gy", `${e.clientY - r.top}px`);
-    mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
+    if (e.pointerType !== "mouse") return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+    const target = e.currentTarget;
+
+    if (frameRef.current !== null) return;
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = null;
+      if (!target) return;
+      const r = target.getBoundingClientRect();
+      target.style.setProperty("--gx", `${clientX - r.left}px`);
+      target.style.setProperty("--gy", `${clientY - r.top}px`);
+      if (tilt) {
+        mx.set((clientX - r.left) / r.width - 0.5);
+        my.set((clientY - r.top) / r.height - 0.5);
+      }
+    });
   };
-  const onLeave = () => { mx.set(0); my.set(0); };
+
+  const onLeave = () => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+    mx.set(0);
+    my.set(0);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+    };
+  }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.94 }}
+      initial={{ opacity: 0, y: 30, scale: 0.96 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.7, delay: Math.min(n, 3) * 0.08, ease: "easeOut" }}
+      transition={{ duration: 0.6, delay: Math.min(n, 3) * 0.08, ease: "easeOut" }}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       onPointerCancel={onLeave}
       className={cn(
-        "group/bento relative row-span-1 flex flex-col justify-between space-y-4 overflow-hidden rounded-3xl border border-white/10 md:backdrop-blur-md",
+        "group/bento relative row-span-1 flex flex-col justify-between space-y-4 overflow-hidden rounded-3xl border border-white/10 bg-[#060628]/90",
         "shadow-xl shadow-black/50 transition-shadow duration-300 hover:-translate-y-1 hover:border-white/20",
         MOBILE_MIN[n],
         "md:min-h-0",
@@ -128,7 +168,7 @@ export const BentoGridItem = ({
       )}
       style={{
         background:
-          "linear-gradient(135deg, rgba(10,10,46,0.88) 0%, rgba(6,6,40,0.84) 45%, rgba(26,10,82,0.9) 100%)",
+          "linear-gradient(135deg, rgba(10,10,46,0.92) 0%, rgba(6,6,40,0.88) 45%, rgba(26,10,82,0.94) 100%)",
         rotateX: tilt ? rotateX : 0,
         rotateY: tilt ? rotateY : 0,
         transformPerspective: 1000,
@@ -148,10 +188,28 @@ export const BentoGridItem = ({
 
       <div className={cn(n === 6 && "flex h-full justify-center")}>
         <div className="absolute h-full w-full">
-          {img && <img src={img} alt="" className={cn(imgClassName, "object-cover object-center")} />}
+          {img && (
+            <Image
+              src={img}
+              alt=""
+              width={600}
+              height={400}
+              loading="lazy"
+              className={cn(imgClassName, "object-cover object-center")}
+            />
+          )}
         </div>
         <div className={cn("absolute right-0 -bottom-5", n === 5 && "w-full opacity-80")}>
-          {spareImg && <img src={spareImg} alt="" className="h-full w-full object-cover object-center" />}
+          {spareImg && (
+            <Image
+              src={spareImg}
+              alt=""
+              width={400}
+              height={300}
+              loading="lazy"
+              className="h-full w-full object-cover object-center"
+            />
+          )}
         </div>
 
         {n === 6 && <BackgroundGradientAnimation />}
@@ -218,16 +276,11 @@ export const BentoGridItem = ({
 
           {n === 6 && (
             <div className="relative mt-5">
-              <div className="absolute -bottom-5 right-0">
-                <Lottie
-                  options={{
-                    loop: copied,
-                    autoplay: copied,
-                    animationData,
-                    rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
-                  }}
-                />
-              </div>
+              {copied && (
+                <div className="absolute -bottom-5 right-0 pointer-events-none">
+                  <ConfettiLottie copied={copied} />
+                </div>
+              )}
               <MagicButton
                 title={copied ? "Email copied!" : "Copy my email"}
                 icon={<IoCopyOutline />}
@@ -241,7 +294,15 @@ export const BentoGridItem = ({
           )}
         </div>
 
-        {n === 2 && <GlobeDemo />}
+        {n === 2 && (
+          !isMobile ? (
+            <GlobeDemo />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none">
+              <div className="size-48 rounded-full border border-sky-400/30 bg-radial from-sky-500/15 to-transparent" />
+            </div>
+          )
+        )}
       </div>
 
       <div

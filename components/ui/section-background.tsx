@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { useIsMobile } from "@/lib/hooks";
 
 /**
- * INTENSE animated section background: 4 hue-shifting aurora blobs (scroll parallax),
- * rotating light beams, pulsing rings, a bright drifting grid + big cursor spotlight,
+ * Animated section background: 4 hue-shifting aurora blobs (scroll parallax),
+ * rotating light beams, pulsing rings, a bright drifting grid + cursor spotlight,
  * glowing twinkling stars, shooting comets, rising colored particles and a light sweep.
  *
  * The parent section MUST have `relative isolate overflow-hidden`.
@@ -16,37 +17,38 @@ function seeded(seed: number) {
 }
 const rnd = seeded(11);
 const GLOW = ["#c4b5fd", "#67e8f9", "#f9a8d4", "#ffffff"];
-const STARS = Array.from({ length: 150 }, (_, i) => ({
+
+// Cap to 50 stars generated once (30 active on mobile via CSS)
+const STARS = Array.from({ length: 50 }, (_, i) => ({
   x: +(rnd() * 100).toFixed(2),
   y: +(rnd() * 100).toFixed(2),
-  size: +(1 + rnd() * 2.5).toFixed(2),
-  delay: +(rnd() * 4).toFixed(2),
-  dur: +(2 + rnd() * 4).toFixed(2),
+  size: +(1 + rnd() * 2).toFixed(2),
+  delay: +(rnd() * 3).toFixed(2),
+  dur: +(2 + rnd() * 3).toFixed(2),
   hot: i % 6 === 0,
   color: GLOW[i % GLOW.length],
 }));
 const PCOLORS = ["bg-purple-300", "bg-cyan-300", "bg-pink-300", "bg-indigo-300"];
-const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
   x: +(rnd() * 100).toFixed(2),
   y: +(50 + rnd() * 50).toFixed(2),
-  size: +(2 + rnd() * 4).toFixed(2),
-  delay: +(rnd() * 8).toFixed(2),
-  dur: +(5 + rnd() * 6).toFixed(2),
-  rise: Math.round(160 + rnd() * 260),
+  size: +(2 + rnd() * 3).toFixed(2),
+  delay: +(rnd() * 6).toFixed(2),
+  dur: +(5 + rnd() * 5).toFixed(2),
+  rise: Math.round(140 + rnd() * 200),
   color: PCOLORS[i % PCOLORS.length],
 }));
 const SHOOTING = [
-  { left: "8%", top: "6%", delay: 0.8, repeatDelay: 4 },
-  { left: "52%", top: "3%", delay: 2.5, repeatDelay: 5 },
-  { left: "28%", top: "28%", delay: 4.5, repeatDelay: 6 },
-  { left: "75%", top: "15%", delay: 6.5, repeatDelay: 5 },
+  { left: "8%", top: "6%", delay: 0.8, repeatDelay: 5 },
+  { left: "52%", top: "3%", delay: 2.5, repeatDelay: 6 },
+  { left: "75%", top: "15%", delay: 5.5, repeatDelay: 6 },
   { left: "40%", top: "50%", delay: 8.5, repeatDelay: 7 },
-  { left: "88%", top: "40%", delay: 10, repeatDelay: 6 },
 ];
 
 export default function SectionBackground({ variant = "experience" }: { variant?: "experience" | "contact" }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion() ?? false;
+  const isMobile = useIsMobile();
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const yA = useTransform(scrollYProgress, [0, 1], reduce ? ["0%", "0%"] : ["-15%", "35%"]);
@@ -58,13 +60,29 @@ export default function SectionBackground({ variant = "experience" }: { variant?
     const el = ref.current;
     const parent = el?.parentElement;
     if (!el || !parent) return;
+
+    let frameId: number | null = null;
+    let latestEvent: PointerEvent | null = null;
+
     const onMove = (e: PointerEvent) => {
-      const r = parent.getBoundingClientRect();
-      el.style.setProperty("--mx", `${e.clientX - r.left}px`);
-      el.style.setProperty("--my", `${e.clientY - r.top}px`);
+      if (e.pointerType !== "mouse") return;
+      latestEvent = e;
+      if (frameId !== null) return;
+
+      frameId = requestAnimationFrame(() => {
+        frameId = null;
+        if (!latestEvent || !parent) return;
+        const r = parent.getBoundingClientRect();
+        el.style.setProperty("--mx", `${latestEvent.clientX - r.left}px`);
+        el.style.setProperty("--my", `${latestEvent.clientY - r.top}px`);
+      });
     };
+
     parent.addEventListener("pointermove", onMove, { passive: true });
-    return () => parent.removeEventListener("pointermove", onMove);
+    return () => {
+      parent.removeEventListener("pointermove", onMove);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
   }, []);
 
   return (
@@ -110,7 +128,7 @@ export default function SectionBackground({ variant = "experience" }: { variant?
         ))}
       </motion.div>
 
-      {!reduce && (
+      {!reduce && !isMobile && (
         <>
           {/* comets */}
           {SHOOTING.map((s, i) => (

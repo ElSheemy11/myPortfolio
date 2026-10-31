@@ -52,7 +52,7 @@ export const FloatingNav = ({
     >
       <nav
         aria-label="Primary"
-        className="flex items-center gap-1 rounded-2xl border border-white/15 bg-white/80 p-1.5 shadow-lg shadow-black/20 backdrop-blur-xl dark:border-purple-300/20 dark:bg-[#0a0a2e]/70 dark:shadow-[0_0_30px_rgba(139,92,246,0.25)]"
+        className="flex items-center gap-1 rounded-2xl border border-white/15 bg-white/95 p-1.5 shadow-lg shadow-black/20 md:backdrop-blur-md dark:border-purple-300/20 dark:bg-[#0a0a2e]/95 dark:shadow-[0_0_30px_rgba(139,92,246,0.25)]"
       >
         {navItems.map((navItem, idx) => {
           const isActive = active === navItem.link;

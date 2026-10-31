@@ -13,21 +13,9 @@ import { cn } from "@/lib/utils";
 import { GlareCard } from "./ui/glare-card";
 import SectionBackground from "./ui/section-background";
 import { workExperience } from "@/data";
+import { useSectionVisibility, useIsMobile } from "@/lib/hooks";
 
 type Item = (typeof workExperience)[number];
-
-/** True below the `md` breakpoint. `null` until measured, so cards never mount with the wrong reveal values. */
-function useIsMobile(query = "(max-width: 767px)") {
-  const [mobile, setMobile] = useState<boolean | null>(null);
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const update = () => setMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
-  }, [query]);
-  return mobile;
-}
 
 /* ------------------------------------------------------------------ */
 /* One timeline entry                                                  */
@@ -83,15 +71,15 @@ function TimelineItem({
   const dateY = useTransform(p, [0, 1], calm ? [0, 0] : [56, -56]);
   const dateOpacity = useTransform(p, [0, 0.25, 0.75, 1], calm ? [1, 1, 1, 1] : [0.15, 1, 1, 0.15]);
 
-  // One-time reveal: desktop flips in from the side with blur, phones just rise gently (no blur, no 3D).
+  // One-time reveal: GPU-friendly transforms (no blur filter during scroll)
   const revealFrom = reduce
     ? { opacity: 0 }
     : mobile
-      ? { opacity: 0, y: 28 }
-      : { opacity: 0, x: left ? -60 : 60, rotateY: left ? 16 : -16, filter: "blur(10px)" };
+      ? { opacity: 0, y: 24 }
+      : { opacity: 0, x: left ? -50 : 50, rotateY: left ? 12 : -12 };
   const revealTo = reduce
     ? { opacity: 1 }
-    : { opacity: 1, x: 0, y: 0, rotateY: 0, filter: "blur(0px)" };
+    : { opacity: 1, x: 0, y: 0, rotateY: 0 };
 
   return (
     <div
@@ -144,7 +132,7 @@ function TimelineItem({
         initial={revealFrom}
         whileInView={revealTo}
         viewport={{ once: true, margin: mobile ? "-40px" : "-80px" }}
-        transition={{ duration: mobile ? 0.55 : 0.8, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: mobile ? 0.5 : 0.7, ease: [0.22, 1, 0.36, 1] }}
         className={left ? "order-1" : "order-2"}
       >
         <motion.div style={{ scale: cardScale, opacity: cardOpacity, y: cardY }}>
@@ -164,13 +152,13 @@ function TimelineItem({
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.35 } } }}
+              variants={{ show: { transition: { staggerChildren: 0.05, delayChildren: 0.25 } } }}
             >
               {item.tags.map((t) => (
                 <motion.span
                   key={t}
                   variants={{
-                    hidden: { opacity: 0, y: 10, scale: 0.85 },
+                    hidden: { opacity: 0, y: 8, scale: 0.9 },
                     show: { opacity: 1, y: 0, scale: 1 },
                   }}
                   whileHover={{ y: -2 }}
@@ -194,6 +182,7 @@ export default function Experience() {
   const reduce = useReducedMotion() ?? false;
   const mobile = useIsMobile();
   const timelineRef = useRef<HTMLDivElement>(null);
+  const { ref: sectionRef } = useSectionVisibility<HTMLElement>();
 
   // The glowing line fills as you scroll. Its tip always sits ~60% down the viewport.
   const { scrollYProgress } = useScroll({ target: timelineRef, offset: ["start 60%", "end 60%"] });
@@ -201,17 +190,21 @@ export default function Experience() {
   const headTop = useTransform(progress, (v) => `${v * 100}%`);
 
   return (
-    <section id="experience" className="relative isolate w-full overflow-hidden px-4 py-20 md:px-8 md:py-28">
+    <section
+      id="experience"
+      ref={sectionRef}
+      className="relative isolate w-full overflow-hidden px-4 py-20 md:px-8 md:py-28 cv-auto"
+    >
       <SectionBackground variant="experience" />
 
       <h2 className="heading flex flex-wrap justify-center gap-x-2.5 sm:gap-x-3">
         {["My", "experience"].map((w, i) => (
           <motion.span
             key={w}
-            initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: i * 0.15, ease: "easeOut" }}
+            transition={{ duration: 0.6, delay: i * 0.12, ease: "easeOut" }}
             className={cn(
               i === 1 && "text-shimmer bg-linear-to-r from-purple-400 via-sky-300 to-purple-400 bg-clip-text text-transparent",
             )}
@@ -225,7 +218,7 @@ export default function Experience() {
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.35 }}
+        transition={{ duration: 0.6, delay: 0.25 }}
         className="mx-auto mt-3 max-w-xl text-balance text-center text-sm text-neutral-400 sm:mt-4 sm:text-base"
       >
         Where I&apos;ve built, studied, and grown as a developer.
@@ -236,7 +229,7 @@ export default function Experience() {
         initial={{ scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
         viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         className="mx-auto mt-6 h-px w-32 bg-linear-to-r from-transparent via-purple-400 to-transparent sm:w-40"
       />
 
@@ -260,10 +253,9 @@ export default function Experience() {
           <span className="block size-3 rounded-full bg-white shadow-[0_0_14px_6px_rgba(167,139,250,0.9),0_0_30px_10px_rgba(56,189,248,0.4)] md:shadow-[0_0_20px_8px_rgba(167,139,250,0.9),0_0_50px_16px_rgba(56,189,248,0.4)]" />
         </motion.div>
 
-        {mobile !== null &&
-          workExperience.map((item, i) => (
-            <TimelineItem key={item.id} item={item} index={i} progress={progress} reduce={reduce} mobile={mobile} />
-          ))}
+        {workExperience.map((item, i) => (
+          <TimelineItem key={item.id} item={item} index={i} progress={progress} reduce={reduce} mobile={mobile} />
+        ))}
       </div>
     </section>
   );
