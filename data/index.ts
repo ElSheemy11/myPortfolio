@@ -183,7 +183,7 @@ export const workExperience = [
 export const socialMedia = [
   { id: 1, img: "/git.svg", link: "https://github.com/ElSheemy11" },
   { id: 2, img: "/link.svg", link: "https://www.linkedin.com/in/momen-el-sheemy/" },
-  { id: 3, img: "/facebook.svg", link: "https://www.facebook.com/momen.elsheemy" },
+  { id: 3, img: "/facebook.svg", link: "https://www.facebook.com/profile.php?id=61591615018333" },
   { id: 4, img: "/insta.svg", link: "https://www.instagram.com/momen.elsheemy/" },
   { id: 5, img: "/wha.svg", link: "https://wa.me/+201104328077" },
 ];
